@@ -1,0 +1,194 @@
+<dom-module id="kacey-filter">
+    <style>
+        :host {
+            display: block;
+        }
+    </style>
+
+    <script src="../moment/min/moment-with-locales.min.js"></script>
+
+    <template>
+
+        <template is="dom-repeat" as="category">
+
+        </template>
+
+        <ir-filter-by id="classifiedsCollection"
+                      name="classifiedsCollection"
+                      custom-class="custom"
+                      top-label="Categories"
+                      sub-label=" Sub Categories"
+                      depth="1"
+                      notify-url="/classifieds/category/json/readTree"
+                      value="">
+        </ir-filter-by>
+
+        <paper-dropdown-menu  id="timeselector" class="custom" label="Time" no-label-float>
+            <paper-menu class="dropdown-content">
+                <paper-item>Today</paper-item>
+                <paper-item>This week</paper-item>
+                <paper-item>This month</paper-item>
+            </paper-menu>
+        </paper-dropdown-menu>
+
+        <paper-dropdown-menu  id="isFree" class="custom" label="Is Free" no-label-float>
+            <paper-menu class="dropdown-content">
+                <paper-item>Yes</paper-item>
+                <paper-item>No</paper-item>
+            </paper-menu>
+        </paper-dropdown-menu>
+
+        <input id="searchTextField" type="text"  placeholder="Enter a location" autocomplete="on">
+
+        <input type="submit" value="Search" on-tap="menuTap" class="btn"/>
+
+        <app-location route="{{ route }}" use-hash-as-path></app-location>
+        <app-route route="{{ route }}"></app-route>
+
+        <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
+
+
+
+
+    </template>
+</dom-module>
+
+
+<script>
+    (function(){
+        Polymer({
+            is: 'kacey-filter',
+            properties: {
+                data: {
+                    type: Array,
+                    value: []
+                },
+                selection: {
+                    type: Array,
+                    value: []
+                },
+                notifyUrl : {
+                    type : String,
+                    value : ""
+                },
+                valuePath : {
+                    type : String,
+                    value : 'id'
+                },
+                value : {
+                    type : String,
+                    value : "",
+                    notify : true
+                },
+                city:{
+                    type : String,
+                    value : "",
+                    notify : true
+                },
+
+                category:{
+                    type : String,
+                    value : "",
+                    notify : true
+                },
+
+
+
+                route : { type : Object, notify: true }
+            },
+
+            menuTap : function(ev) {
+                debugger;
+                ev.preventDefault();
+                var url, el,text,city,category,filters, k, q,time, time2, time4;
+                url = '/classifieds/category/';
+                el = document.getElementById("searchTextField");
+                time = document.getElementById("timeselector");
+                time2 = time.value;
+
+//            var time4 = 1467106708242;
+
+                if(time2 == 'Today'){
+                    time4 = moment().subtract(1, 'days');
+                }
+                else if(time2 == 'This week'){
+                    time4 = moment().subtract(1, 'weeks');
+                }
+                else if(time2 == 'This month'){
+                    time4 = moment().subtract(1, 'months');
+                }
+                else{
+                    time4 = moment().subtract(1, 'years');
+                }
+
+                text = el.value;
+                var kr = text.match(/([^,]+)/);
+                if(kr)
+                    city = kr[0];
+                else
+                    city = null;
+
+                category = this.$.classifiedsCollection.value;
+
+                if(!kr){
+                    k = url+'partial/'+ category+'/list';
+                }
+                else if(!category){
+                    filters = { city : city,
+                        pubDate: time3
+                    };
+                    q = JSON.stringify(filters);
+                    k = '/classifieds/json/listbydate?q='+q;
+                }
+                else{
+                    k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4;
+                }
+
+                this.set('route.path', k);
+
+            },
+
+//        onAction : function(ev) {
+//            debugger;
+//            if(ev.detail.method && ev.detail.method.toUpperCase() != "GET")
+//                this.$.content.submit(ev.detail.url, ev.detail.method, ev.detail.form);
+//            else
+//            {
+//                var a = document.createElement('a');
+//                a.href = ev.detail.url;
+//
+//                this.$.content.navigate(ev.detail.url.replace(a.origin, ''));
+//            }
+//        },
+
+            ready: function() {
+
+//            console.log(moment());
+//
+//var time3 = (new Date()).getTime();
+//            var filters = { city : "Praha", pubDate: "1467106708242" }
+//            this.$.itemsLoader.url = "/events/json/where";
+//
+//            var opts = {
+//                skip : this.skip || 0,
+//                limit : this.limit || 20,
+//                noCache : true
+//            };
+//            this.$.itemsLoader.params = {
+//                q : JSON.stringify(filters),
+//                opts : JSON.stringify(opts)
+//            };
+
+
+//            this.$.itemsLoader.generateRequest();
+//
+//
+
+            },
+            attached:function(){
+                this.set('route.path', '/classifieds/category/partial/');
+            }
+
+        });
+    }());
+</script>
