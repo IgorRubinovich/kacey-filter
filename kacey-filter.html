@@ -3,6 +3,9 @@
         :host {
             display: block;
         }
+        ir-filter-by {
+            display: inline-block;
+        }
     </style>
 
     <script src="../moment/min/moment-with-locales.min.js"></script>
@@ -13,15 +16,15 @@
 
         </template>
 
-        <ir-filter-by id="classifiedsCollection"
+        <ir-recursive-menu id="classifiedsCollection"
                       name="classifiedsCollection"
                       custom-class="custom"
                       top-label="Categories"
                       sub-label=" Sub Categories"
                       depth="1"
-                      notify-url="/classifieds/category/json/readTree"
+                      notify-url="{{category}}"
                       value="">
-        </ir-filter-by>
+        </ir-recursive-menu>
 
         <paper-dropdown-menu  id="timeselector" class="custom" label="Time" no-label-float>
             <paper-menu class="dropdown-content">
@@ -31,14 +34,20 @@
             </paper-menu>
         </paper-dropdown-menu>
 
-        <paper-dropdown-menu  id="isFree" class="custom" label="Is Free" no-label-float>
-            <paper-menu class="dropdown-content">
-                <paper-item>Yes</paper-item>
-                <paper-item>No</paper-item>
-            </paper-menu>
-        </paper-dropdown-menu>
+        <!--<paper-dropdown-menu  id="isFree" class="custom" label="Is Free" no-label-float>-->
+            <!--<paper-menu class="dropdown-content">-->
+                <!--<paper-item>Yes</paper-item>-->
+                <!--<paper-item>No</paper-item>-->
+            <!--</paper-menu>-->
+        <!--</paper-dropdown-menu>-->
 
-        <input id="searchTextField" type="text"  placeholder="Enter a location" autocomplete="on">
+        <city-autocomplete  placeholder="?????"  id="city"  class="autocomplete"></city-autocomplete>
+
+        <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
+
+        <content>
+
+        </content>
 
         <input type="submit" value="Search" on-tap="menuTap" class="btn"/>
 
@@ -85,12 +94,13 @@
                     value : "",
                     notify : true
                 },
-
                 category:{
                     type : String,
-                    value : "",
-                    notify : true
+                    notify : true,
                 },
+
+
+
 
 
 
@@ -98,11 +108,11 @@
             },
 
             menuTap : function(ev) {
-                debugger;
-                ev.preventDefault();
+
+//                ev.preventDefault();
                 var url, el,text,city,category,filters, k, q,time, time2, time4;
                 url = '/classifieds/category/';
-                el = document.getElementById("searchTextField");
+                el = document.getElementById("city");
                 time = document.getElementById("timeselector");
                 time2 = time.value;
 
@@ -148,45 +158,23 @@
 
             },
 
-//        onAction : function(ev) {
-//            debugger;
-//            if(ev.detail.method && ev.detail.method.toUpperCase() != "GET")
-//                this.$.content.submit(ev.detail.url, ev.detail.method, ev.detail.form);
-//            else
-//            {
-//                var a = document.createElement('a');
-//                a.href = ev.detail.url;
-//
-//                this.$.content.navigate(ev.detail.url.replace(a.origin, ''));
-//            }
-//        },
+
 
             ready: function() {
 
-//            console.log(moment());
-//
-//var time3 = (new Date()).getTime();
-//            var filters = { city : "Praha", pubDate: "1467106708242" }
-//            this.$.itemsLoader.url = "/events/json/where";
-//
-//            var opts = {
-//                skip : this.skip || 0,
-//                limit : this.limit || 20,
-//                noCache : true
-//            };
-//            this.$.itemsLoader.params = {
-//                q : JSON.stringify(filters),
-//                opts : JSON.stringify(opts)
-//            };
 
-
-//            this.$.itemsLoader.generateRequest();
-//
-//
 
             },
             attached:function(){
-                this.set('route.path', '/classifieds/category/partial/');
+//                this.set('route.path', '/');
+
+                var h =Polymer.dom(this).querySelectorAll('[filter-field]');
+
+                console.log(h);
+
+                var toLight = document.createElement('div');
+                toLight.setAttribute("class", "test3");
+                Polymer.dom(this).appendChild(toLight);
             }
 
         });
