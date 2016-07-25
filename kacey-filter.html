@@ -1,3 +1,9 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/shadow-iframe/shadow-iframe.html">
+
 <dom-module id="kacey-filter">
     <style>
         :host {
@@ -44,6 +50,8 @@
 
         <app-location route="{{ route }}" use-hash-as-path></app-location>
         <app-route route="{{ route }}"></app-route>
+		
+		<map-search></map-search>
 
         <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
 
