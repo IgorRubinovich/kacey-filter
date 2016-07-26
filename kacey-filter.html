@@ -66,7 +66,7 @@
 
         <app-location route="{{ route }}" use-hash-as-path></app-location>
         <app-route route="{{ route }}"></app-route>
-		
+
 		<map-search id="map"></map-search>
 
         <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
@@ -113,6 +113,10 @@
                     type : String,
                     notify : true,
                 },
+                extraFields:{
+                    type: Array,
+                    value: []
+                },
 
 				place : {
 					type : Object,
@@ -126,7 +130,7 @@
             },
 
             menuTap : function(ev) {
-
+//debugger;
 //                ev.preventDefault();
                 var url, el,text,city,category,filters, k, q,time, time2, time4;
                 url = '/classifieds/category/';
@@ -135,6 +139,8 @@
                 time2 = time.value;
 
 //            var time4 = 1467106708242;
+
+
 
                 if(time2 == 'Today'){
                     time4 = moment().subtract(1, 'days');
@@ -148,6 +154,9 @@
                 else{
                     time4 = moment().subtract(1, 'years');
                 }
+                time4 = time4.format('X');
+
+
 
                 text = el.value;
                 var kr = text.match(/([^,]+)/);
@@ -163,10 +172,36 @@
                 }
                 else if(!category){
                     filters = { city : city,
-                        pubDate: time3
+                        pubDate: time4
                     };
+
+                    var obj = Object.assign(filters, z);
+                    console.log(obj);
                     q = JSON.stringify(filters);
                     k = '/classifieds/json/listbydate?q='+q;
+                }
+
+                else if(this.extraFields){
+                    console.log(this.extraFields.length);
+                    var b = this.extraFields;
+
+                    var z = {};
+                    var extra ="";
+                    b.forEach(function(i){
+//                        console.log(i);
+
+                        z['q_'+i.name] = i.value;
+                        var k =i.value;
+                        if(i.name == 'minRooms'){extra = extra+'&rooms&q_rooms=>'+k+''}
+                        if(i.name == 'maxRooms') extra = extra+'&rooms&q_rooms=<'+k+''
+
+
+
+                    });
+
+
+                    console.log(b);
+                    k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4+extra;
                 }
                 else{
                     k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4;
@@ -177,16 +212,18 @@
             },
 
 
+
+
             attached:function(){
 //                this.set('route.path', '/');
 
-                var h =Polymer.dom(this).querySelectorAll('[filter-field]');
+                var extra =Polymer.dom(this).querySelectorAll('[filter-field]');
 
-                console.log(h);
+                console.log(extra);
+                this.extraFields = extra;
 
-                var toLight = document.createElement('div');
-                toLight.setAttribute("class", "test3");
-                Polymer.dom(this).appendChild(toLight);
+
+
             },
 			
 			_placeChanged : function () {
