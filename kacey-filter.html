@@ -27,7 +27,10 @@
 
         </template>
 
-		<paper-toolbar><paper-button on-tap="collapse" id="generalFilters"><iron-icon icon="expand-less"></iron-icon>General Filters</paper-button></paper-toolbar>
+		<paper-toolbar>
+			<span class="title">General Filters</span>
+			<paper-icon-button on-tap="collapse" id="generalFilters" icon="expand-less"></paper-icon-button>
+		</paper-toolbar>
 
 		<div id="generalFiltersWrap">
 			<ir-recursive-menu id="classifiedsCollection"
@@ -59,7 +62,10 @@
 		</div>
         <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
 
-		<br><paper-toolbar><paper-button on-tap="collapse" id="customFilters"><iron-icon icon="expand-less"></iron-icon>Custom Filters</paper-button></paper-toolbar>
+		<paper-toolbar>
+			<span class="title">Custom Filters</span>
+			<paper-icon-button on-tap="collapse" id="customFilters" icon="expand-less"></paper-icon-button>
+		</paper-toolbar>
 		<div id="customFiltersWrap">
         <content>
 		<p>Lorem Ipsum</p>
@@ -238,16 +244,16 @@
 			},
 			
 			collapse : function (ev) {
-				console.log('click', ev);
 				var srcEl = ev.srcElement;
+				if(srcEl.id == 'icon')
+					srcEl = srcEl.parentElement;
 				var srcElId = srcEl.id;
 				var filterEl = document.getElementById(srcElId + 'Wrap');
-				var ironIcon = srcEl.children[0];
-				if(ironIcon.icon == 'expand-less'){
-					ironIcon.icon = 'expand-more';
+				if(srcEl.icon == 'expand-less'){
+					srcEl.icon = 'expand-more';
 					filterEl.style.display = "none";
 				} else {
-					ironIcon.icon = 'expand-less';
+					srcEl.icon = 'expand-less';
 					filterEl.style.display = "inline";
 				}
 			}
