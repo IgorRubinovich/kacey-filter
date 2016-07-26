@@ -1,6 +1,5 @@
 <!-- Imports for use when working on kacey-filter locally -->
 
-<!-- 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
@@ -9,7 +8,6 @@
 <link rel="import" href="../../bower_components/map-search/map-search.html">
 <link rel="import" href="../../bower_components/autocomplete/city-autocomplete.html">
 <link rel="import" href="../../bower_components/ir-recursive/ir-recursive-menu.html">
- -->
  
 <dom-module id="kacey-filter">
     <style>
@@ -29,40 +27,46 @@
 
         </template>
 
-        <ir-recursive-menu id="classifiedsCollection"
-                      name="classifiedsCollection"
-                      custom-class="custom"
-                      top-label="Categories"
-                      sub-label=" Sub Categories"
-                      depth="1"
-                      notify-url="{{category}}"
-                      value="">
-        </ir-recursive-menu>
+		<paper-toolbar><paper-button on-tap="collapse" id="generalFilters"><iron-icon icon="expand-less"></iron-icon>General Filters</paper-button></paper-toolbar>
 
-        <paper-dropdown-menu  id="timeselector" class="custom" label="Time" no-label-float>
-            <paper-menu class="dropdown-content">
-                <paper-item>Today</paper-item>
-                <paper-item>This week</paper-item>
-                <paper-item>This month</paper-item>
-            </paper-menu>
-        </paper-dropdown-menu>
+		<div id="generalFiltersWrap">
+			<ir-recursive-menu id="classifiedsCollection"
+						  name="classifiedsCollection"
+						  custom-class="custom"
+						  top-label="Categories"
+						  sub-label=" Sub Categories"
+						  depth="1"
+						  notify-url="{{category}}"
+						  value="">
+			</ir-recursive-menu>
 
-        <!--<paper-dropdown-menu  id="isFree" class="custom" label="Is Free" no-label-float>-->
-            <!--<paper-menu class="dropdown-content">-->
-                <!--<paper-item>Yes</paper-item>-->
-                <!--<paper-item>No</paper-item>-->
-            <!--</paper-menu>-->
-        <!--</paper-dropdown-menu>-->
+			<paper-dropdown-menu  id="timeselector" class="custom" label="Time" no-label-float>
+				<paper-menu class="dropdown-content">
+					<paper-item>Today</paper-item>
+					<paper-item>This week</paper-item>
+					<paper-item>This month</paper-item>
+				</paper-menu>
+			</paper-dropdown-menu>
 
-        <city-autocomplete  placeholder="?????"  id="city"  class="autocomplete" place="{{ place }}"></city-autocomplete>
+			<!--<paper-dropdown-menu  id="isFree" class="custom" label="Is Free" no-label-float>-->
+				<!--<paper-menu class="dropdown-content">-->
+					<!--<paper-item>Yes</paper-item>-->
+					<!--<paper-item>No</paper-item>-->
+				<!--</paper-menu>-->
+			<!--</paper-dropdown-menu>-->
 
+			<city-autocomplete  placeholder="?????"  id="city"  class="autocomplete" place="{{ place }}"></city-autocomplete>
+		</div>
         <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
 
+		<br><paper-toolbar><paper-button on-tap="collapse" id="customFilters"><iron-icon icon="expand-less"></iron-icon>Custom Filters</paper-button></paper-toolbar>
+		<div id="customFiltersWrap">
         <content>
-
+		<p>Lorem Ipsum</p>
         </content>
-
-        <input type="submit" value="Search" on-tap="menuTap" class="btn"/>
+		</div>
+		
+        <br><input type="submit" value="Search" on-tap="menuTap" class="btn"/>
 
         <app-location route="{{ route }}" use-hash-as-path></app-location>
         <app-route route="{{ route }}"></app-route>
@@ -230,6 +234,21 @@
 				if(this.place.name){
 					this.$.map.displayCenter = this.place.geometry.location;
 					this.$.map.map.fitBounds(this.place.geometry.viewport);
+				}
+			},
+			
+			collapse : function (ev) {
+				console.log('click', ev);
+				var srcEl = ev.srcElement;
+				var srcElId = srcEl.id;
+				var filterEl = document.getElementById(srcElId + 'Wrap');
+				var ironIcon = srcEl.children[0];
+				if(ironIcon.icon == 'expand-less'){
+					ironIcon.icon = 'expand-more';
+					filterEl.style.display = "none";
+				} else {
+					ironIcon.icon = 'expand-less';
+					filterEl.style.display = "inline";
 				}
 			}
         });
