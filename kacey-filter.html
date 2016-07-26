@@ -1,9 +1,16 @@
+<!-- Imports for use when working on kacey-filter locally -->
+
+<!-- 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/shadow-iframe/shadow-iframe.html">
-
+<link rel="import" href="../../bower_components/map-search/map-search.html">
+<link rel="import" href="../../bower_components/autocomplete/city-autocomplete.html">
+<link rel="import" href="../../bower_components/ir-recursive/ir-recursive-menu.html">
+ -->
+ 
 <dom-module id="kacey-filter">
     <style>
         :host {
@@ -47,7 +54,7 @@
             <!--</paper-menu>-->
         <!--</paper-dropdown-menu>-->
 
-        <city-autocomplete  placeholder="?????"  id="city"  class="autocomplete"></city-autocomplete>
+        <city-autocomplete  placeholder="?????"  id="city"  class="autocomplete" place="{{ place }}"></city-autocomplete>
 
         <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
 
@@ -60,7 +67,7 @@
         <app-location route="{{ route }}" use-hash-as-path></app-location>
         <app-route route="{{ route }}"></app-route>
 		
-		<map-search></map-search>
+		<map-search id="map"></map-search>
 
         <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
 
@@ -107,12 +114,15 @@
                     notify : true,
                 },
 
+				place : {
+					type : Object,
+					observer : '_placeChanged'
+				},
 
-
-
-
-
-                route : { type : Object, notify: true }
+                route : { 
+					type : Object,
+					notify: true
+				}
             },
 
             menuTap : function(ev) {
@@ -167,12 +177,6 @@
             },
 
 
-
-            ready: function() {
-
-
-
-            },
             attached:function(){
 //                this.set('route.path', '/');
 
@@ -183,8 +187,14 @@
                 var toLight = document.createElement('div');
                 toLight.setAttribute("class", "test3");
                 Polymer.dom(this).appendChild(toLight);
-            }
-
+            },
+			
+			_placeChanged : function () {
+				if(this.place.name){
+					this.$.map.displayCenter = this.place.geometry.location;
+					this.$.map.map.fitBounds(this.place.geometry.viewport);
+				}
+			}
         });
     }());
 </script>
