@@ -1,14 +1,14 @@
 <!-- Imports for use when working on kacey-filter locally -->
 
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/shadow-iframe/shadow-iframe.html">
-<link rel="import" href="../../bower_components/map-search/map-search.html">
-<link rel="import" href="../../bower_components/autocomplete/city-autocomplete.html">
-<link rel="import" href="../../bower_components/ir-recursive/ir-recursive-menu.html">
- 
+<!--<link rel="import" href="../../bower_components/polymer/polymer.html">-->
+<!--<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">-->
+<!--<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">-->
+<!--<link rel="import" href="../../bower_components/paper-item/paper-item.html">-->
+<!--<link rel="import" href="../../bower_components/shadow-iframe/shadow-iframe.html">-->
+<!--<link rel="import" href="../../bower_components/map-search/map-search.html">-->
+<!--<link rel="import" href="../../bower_components/autocomplete/city-autocomplete.html">-->
+<!--<link rel="import" href="../../bower_components/ir-recursive/ir-recursive-menu.html">-->
+
 <dom-module id="kacey-filter">
     <style>
         :host {
@@ -71,7 +71,7 @@
 		<p>Lorem Ipsum</p>
         </content>
 		</div>
-		
+
         <br><input type="submit" value="Search" on-tap="menuTap" class="btn"/>
 
         <app-location route="{{ route }}" use-hash-as-path></app-location>
@@ -133,7 +133,7 @@
 					observer : '_placeChanged'
 				},
 
-                route : { 
+                route : {
 					type : Object,
 					notify: true
 				}
@@ -196,14 +196,14 @@
                     var b = this.extraFields;
 
                     var z = {};
-                    var extra ="";
+                    var extra ="&q_rooms=";
                     b.forEach(function(i){
 //                        console.log(i);
 
                         z['q_'+i.name] = i.value;
                         var k =i.value;
-                        if(i.name == 'minRooms'){extra = extra+'&rooms&q_rooms=>'+k+''}
-                        if(i.name == 'maxRooms') extra = extra+'&rooms&q_rooms=<'+k+''
+                        if(i.name == 'minRooms' && i.value) extra = extra+k+'';
+                        if(i.name == 'maxRooms' && i.value) extra = extra+','+k+'';
 
 
 
@@ -211,7 +211,7 @@
 
 
                     console.log(b);
-                    k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4+extra;
+                    k = url+'partial/'+ category+'/list/?fields=city,pubDate,rooms&q_city='+city+'&q_pubDate=>'+time4+extra;
                 }
                 else{
                     k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4;
@@ -235,14 +235,14 @@
 
 
             },
-			
+
 			_placeChanged : function () {
 				if(this.place.name){
 					this.$.map.displayCenter = this.place.geometry.location;
 					this.$.map.map.fitBounds(this.place.geometry.viewport);
 				}
 			},
-			
+
 			collapse : function (ev) {
 				var srcEl = ev.srcElement;
 				if(srcEl.id == 'icon')
