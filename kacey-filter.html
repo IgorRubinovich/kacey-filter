@@ -77,12 +77,7 @@
 
 			<city-autocomplete  placeholder="?????"  id="city"  class="autocomplete" place="{{ place }}"></city-autocomplete>
 
-            <div class="slider-wrap">
-                <div class="type">Price (step by 10000Kc)</div>
-                <div class="slider">
-                    <paper-range-slider id="price"  pin step='1' min='0' max='1000' value-diff-min="1"  value-min='0' value-max='1000'></paper-range-slider>
-                </div>
-            </div>
+
 		</div>
         <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
 
@@ -166,15 +161,12 @@
             menuTap : function(ev) {
 //debugger;
 //                ev.preventDefault();
-                var url, el,text,city,category,filters, k, q,time, time2, time4,price, maxPrice, minPrice, kr;
+                var url, el,text,city,category,filters, k, q,time, time2, time4, kr;
                 url = '/classifieds/category/';
                 el = document.getElementById("city");
                 time = document.getElementById("timeselector");
                 time2 = time.value;
-                price = document.getElementById("price");
-                maxPrice = price.valueMax *10000;
-                minPrice = price.valueMin *10000;
-                debugger;
+
 //            var time4 = 1467106708242;
 
 
@@ -223,25 +215,31 @@
                     console.log(this.extraFields.length);
                     var b = this.extraFields;
 
-//                    var z = {};
                     var extra ="";
+                    var q_extra ="";
+                    debugger;
                     b.forEach(function(i){
-//                        console.log(i);
 
-//                        z['q_'+i.name] = i.value;
-//                        var k =i.value;
+                        if(i.tagName=="PAPER-RANGE-SLIDER"){
+                            q_extra = q_extra+ "&q_"+i.id+ "="+ i.valueMin+','+ i.valueMax;
+                            extra = extra+ ","+i.id;
+                        }
 
-                        if(i.tagName=="PAPER-RANGE-SLIDER")
-                            extra = extra+ "&q_"+i.id+ "="+ i.valueMax+','+ i.valueMin;
-//
-//                        if(i.name == 'minRooms' && i.value) extra = extra+k+'';
-//                        if(i.name == 'maxRooms' && i.value) extra = extra+','+k+'';
 
+                        if(i.tagName=="IRON-SELECTOR" && i.selected){
+                            q_extra = q_extra+ "&q_"+i.id+ "="+ i.selected;
+                            extra = extra+ ","+i.id;
+                        }
+
+                        if(i.tagName=="COLLAPSIBLE-DROPDOWN" && i.value){
+                            q_extra = q_extra+ "&q_"+i.id+ "=.*\\b"+ i.value+"\\b.*";
+                            extra = extra+ ","+i.id;
+                        }
 
 
                     });
 
-                    k = url+'partial/'+ category+'/list/?fields=city,pubDate,price,rooms&q_city='+city+'&q_pubDate=>'+time4+'&q_price='+minPrice+','+maxPrice+extra;
+                    k = url+'partial/'+ category+'/list/?fields=city,pubDate'+extra+'&q_city='+city+'&q_pubDate=>'+time4+q_extra;
                     console.log(k);
                 }
                 else{
