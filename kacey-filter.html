@@ -17,6 +17,23 @@
         ir-filter-by {
             display: inline-block;
         }
+
+        shadow-iframe #backdrop {
+            display: none;
+        }
+
+        ir-recursive-menu {
+            display: inline-block;
+        }
+
+        #generalFiltersWrap{
+            margin-top: 10px;
+        }
+
+        .city-autocomplete-0 {
+            display: inline-block;
+             width: auto;
+        }
     </style>
 
     <script src="../moment/min/moment-with-locales.min.js"></script>
@@ -40,7 +57,8 @@
 						  sub-label=" Sub Categories"
 						  depth="1"
 						  notify-url="{{category}}"
-						  value="">
+						  value=""
+                    >
 			</ir-recursive-menu>
 
 			<paper-dropdown-menu  id="timeselector" class="custom" label="Time" no-label-float>
@@ -59,6 +77,8 @@
 			<!--</paper-dropdown-menu>-->
 
 			<city-autocomplete  placeholder="?????"  id="city"  class="autocomplete" place="{{ place }}"></city-autocomplete>
+
+
 		</div>
         <!--<input type="text"  placeholder="Enter a location" autocomplete="on">-->
 
@@ -72,7 +92,7 @@
         </content>
 		</div>
 
-        <br><input type="submit" value="Search" on-tap="menuTap" class="btn"/>
+        <br><input type="submit" value="Search" on-tap="menuTap" class="btn btn-purple"/>
 
         <app-location route="{{ route }}" use-hash-as-path></app-location>
         <app-route route="{{ route }}"></app-route>
@@ -80,9 +100,16 @@
 		<map-search id="map"></map-search>
 
         <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
-
-
-
+		
+		<iron-ajax
+			id="classifieds_loader"
+			handle-as="json"
+			debounce-duration="300"
+			on-response="allClassifiedsLoaded"
+			last-response="{{ items }}"
+			last-error="{{ lastError }}"
+			verbose=true
+		></iron-ajax>
 
     </template>
 </dom-module>
@@ -123,6 +150,10 @@
                     type : String,
                     notify : true,
                 },
+                parent:{
+                    type : String,
+                    notify : true,
+                },
                 extraFields:{
                     type: Array,
                     value: []
@@ -136,104 +167,113 @@
                 route : {
 					type : Object,
 					notify: true
+				},
+				
+				template : {
+					type : String,
+					observer : '_templateChanged'
 				}
+				
             },
+			
+			ready : function () {
+				this.template = 'classifieds';
+			},
 
             menuTap : function(ev) {
-//debugger;
-//                ev.preventDefault();
-                var url, el,text,city,category,filters, k, q,time, time2, time4;
+                ev.preventDefault();
+                var url, el,text,city,category,filters, k, q,time, time2, time4, kr;
                 url = '/classifieds/category/';
                 el = document.getElementById("city");
                 time = document.getElementById("timeselector");
                 time2 = time.value;
+                category = this.$.classifiedsCollection.value;
+                if(!category) category = this.parent;
 
-//            var time4 = 1467106708242;
+                var defaults ="";
+                var q_defaults ="";
+                var extra ="";
+                var q_extra ="";
 
+                if(time2){
+                    if(time2 == 'Today'){
+                        time4 = moment().subtract(1, 'days');
+                    }
+                    else if(time2 == 'This week'){
+                        time4 = moment().subtract(1, 'weeks');
+                    }
+                    else if(time2 == 'This month'){
+                        time4 = moment().subtract(1, 'months');
+                    }
+                    else{
+                        time4 = moment().subtract(1, 'years');
+                    }
+                    time4 = time4.format('X');
 
-
-                if(time2 == 'Today'){
-                    time4 = moment().subtract(1, 'days');
+                    if(time4){
+                        defaults = defaults+ "pubDate";
+                        q_defaults = q_defaults + "&q_pubDate=>"+time4;
+                    }
                 }
-                else if(time2 == 'This week'){
-                    time4 = moment().subtract(1, 'weeks');
-                }
-                else if(time2 == 'This month'){
-                    time4 = moment().subtract(1, 'months');
-                }
-                else{
-                    time4 = moment().subtract(1, 'years');
-                }
-                time4 = time4.format('X');
-
-
 
                 text = el.value;
-                var kr = text.match(/([^,]+)/);
-                if(kr)
-                    city = kr[0];
-                else
-                    city = null;
 
-                category = this.$.classifiedsCollection.value;
-
-                if(!kr){
-                    k = url+'partial/'+ category+'/list';
-                }
-                else if(!category){
-                    filters = { city : city,
-                        pubDate: time4
-                    };
-
-                    var obj = Object.assign(filters, z);
-                    console.log(obj);
-                    q = JSON.stringify(filters);
-                    k = '/classifieds/json/listbydate?q='+q;
+                if(text){
+                    kr = text.match(/([^,]+)/);
+                    if(kr) city = kr[0];
+                    if(defaults) defaults= defaults+',';
+                    defaults = defaults+ "city";
+                    q_defaults = q_defaults + "&q_city="+city;
                 }
 
-                else if(this.extraFields){
-                    console.log(this.extraFields.length);
+                if(this.extraFields){
+
                     var b = this.extraFields;
 
-                    var z = {};
-                    var extra ="&q_rooms=";
                     b.forEach(function(i){
-//                        console.log(i);
 
-                        z['q_'+i.name] = i.value;
-                        var k =i.value;
-                        if(i.name == 'minRooms' && i.value) extra = extra+k+'';
-                        if(i.name == 'maxRooms' && i.value) extra = extra+','+k+'';
+                        if(i.tagName=="PAPER-RANGE-SLIDER"){
+                            if(i.valueMin != i.min || i.valueMax != i.max){
+                                var min = i.valueMin;
+                                var max = i.valueMax;
+                                if(i.attributes.multiply){
+                                    var multiplyBy =i.attributes.multiply.value;
+                                    min = min * multiplyBy;
+                                    max = max * multiplyBy;
+                                }
+                                q_extra = q_extra+ "&q_"+i.id+ "="+ min+','+ max;
+                                extra = extra+ ","+i.id;
+                            }
+                        }
 
+                        if(i.tagName=="IRON-SELECTOR" && i.selected){
+                            q_extra = q_extra+ "&q_"+i.id+ "="+ i.selected;
+                            extra = extra+ ","+i.id;
+                        }
 
+                        if(i.tagName=="COLLAPSIBLE-DROPDOWN" && i.value){
+                            q_extra = q_extra+ "&q_"+i.id+ "=.*\\b"+ i.value+"\\b.*";
+                            extra = extra+ ","+i.id;
+                        }
 
                     });
 
+                }
 
-                    console.log(b);
-                    k = url+'partial/'+ category+'/list/?fields=city,pubDate,rooms&q_city='+city+'&q_pubDate=>'+time4+extra;
-                }
-                else{
-                    k = url+'partial/'+ category+'/list/?fields=city&q_city='+city+'&pubDate&q_pubDate=>'+time4;
-                }
+                k = url+'partial/'+ category+'/list/?fields='+defaults+extra+q_defaults+q_extra;
+				jsonK = url+'json/'+ category+'/published/?fields='+defaults+extra+q_defaults+q_extra;
 
                 this.set('route.path', k);
+				
+				this.getClassifieds(jsonK);
 
             },
-
-
-
 
             attached:function(){
 //                this.set('route.path', '/');
 
                 var extra =Polymer.dom(this).querySelectorAll('[filter-field]');
-
-                console.log(extra);
                 this.extraFields = extra;
-
-
-
             },
 
 			_placeChanged : function () {
@@ -256,7 +296,23 @@
 					srcEl.icon = 'expand-less';
 					filterEl.style.display = "inline";
 				}
+			},
+			
+			getClassifieds : function (url){
+				loader = this.$.classifieds_loader;
+				loader.url = url;
+				loader.generateRequest();
+			},
+			
+			allClassifiedsLoaded : function (){
+				var res = loader.lastResponse;
+				this.$.map.loadClassified(res[0]);
+			},
+			
+			_templateChanged : function () {
+				this.$.map.template = this.template;
 			}
+			
         });
     }());
 </script>
