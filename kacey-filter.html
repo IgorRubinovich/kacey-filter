@@ -164,8 +164,9 @@
             },
 
             menuTap : function(ev) {
-debugger;
-                ev.preventDefault();
+
+                if(ev)
+                    ev.preventDefault();
                 var url, el,text,city,category,filters, k, q,time, time2, time4, kr;
                 url = '/classifieds/category/';
                 el = document.getElementById("city");
@@ -226,18 +227,22 @@ debugger;
                                     max = max * multiplyBy;
                                 }
                                 q_extra = q_extra+ "&q_"+i.id+ "="+ min+','+ max;
-                                extra = extra+ ","+i.id;
+                                if(extra) { extra = extra+ ","+i.id;}
+                                else  { extra = extra+i.id;}
+
                             }
                         }
 
                         if(i.tagName=="IRON-SELECTOR" && i.selected){
                             q_extra = q_extra+ "&q_"+i.id+ "="+ i.selected;
-                            extra = extra+ ","+i.id;
+                            if(extra) { extra = extra+ ","+i.id;}
+                            else  { extra = extra+i.id;}
                         }
 
                         if(i.tagName=="COLLAPSIBLE-DROPDOWN" && i.value){
                             q_extra = q_extra+ "&q_"+i.id+ "=.*\\b"+ i.value+"\\b.*";
-                            extra = extra+ ","+i.id;
+                            if(extra) { extra = extra+ ","+i.id;}
+                            else  { extra = extra+i.id;}
                         }
 
                     });
@@ -255,6 +260,9 @@ debugger;
 
                 var extra =Polymer.dom(this).querySelectorAll('[filter-field]');
                 this.extraFields = extra;
+
+//                this.menuTap();
+
             },
 
 			_placeChanged : function () {
