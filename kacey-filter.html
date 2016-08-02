@@ -226,7 +226,7 @@
                     if(kr) city = kr[0];
                     if(defaults) defaults= defaults+',';
                     defaults = defaults+ "city";
-                    q_defaults = q_defaults + "&q_city="+city;
+                    q_defaults = q_defaults + "&q_geo.locality="+city;
                 }
 
                 if(this.extraFields){
