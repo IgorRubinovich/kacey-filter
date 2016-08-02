@@ -26,8 +26,9 @@
             display: inline-block;
         }
 
-        #generalFiltersWrap{
-            margin-top: 10px;
+        #generalFiltersWrap, #customFiltersWrap{
+            margin-top: 25px;
+            margin-bottom: 20px;
         }
 
         .city-autocomplete-0 {
@@ -100,7 +101,7 @@
 		<map-search id="map"></map-search>
 
         <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
-		
+
 		<iron-ajax
 			id="classifieds_loader"
 			handle-as="json"
@@ -168,14 +169,14 @@
 					type : Object,
 					notify: true
 				},
-				
+
 				template : {
 					type : String,
 					observer : '_templateChanged'
 				}
-				
+
             },
-			
+
 			ready : function () {
 				this.template = 'classifieds';
 			},
@@ -246,11 +247,8 @@
                                 q_extra = q_extra+ "&q_"+i.id+ "="+ min+','+ max;
                                 if(extra) { extra = extra+ ","+i.id;}
                                 else  { extra = extra+i.id;}
-                        }
 
                             }
-                        }
-                            extra = extra+ ","+i.id;
                         }
 
                         if(i.tagName=="IRON-SELECTOR" && i.selected){
@@ -266,21 +264,25 @@
                         }
 
                     });
+
                 }
 
                 k = url+'partial/'+ category+'/list/?fields='+defaults+extra+q_defaults+q_extra;
 				jsonK = url+'json/'+ category+'/published/?fields='+defaults+extra+q_defaults+q_extra;
 
                 this.set('route.path', k);
-				
+
 				this.getClassifieds(jsonK);
             },
+
             attached:function(){
 //                this.set('route.path', '/');
 
                 var extra =Polymer.dom(this).querySelectorAll('[filter-field]');
                 this.extraFields = extra;
-//                this.menuTap();
+
+                this.menuTap();
+
             },
 
 			_placeChanged : function () {
@@ -304,22 +306,22 @@
 					filterEl.style.display = "inline";
 				}
 			},
-			
+
 			getClassifieds : function (url){
 				loader = this.$.classifieds_loader;
 				loader.url = url;
 				loader.generateRequest();
 			},
-			
+
 			allClassifiedsLoaded : function (){
 				var res = loader.lastResponse;
 				this.$.map.loadClassified(res[0]);
 			},
-			
+
 			_templateChanged : function () {
 				this.$.map.template = this.template;
 			}
-			
+
         });
     }());
 </script>
