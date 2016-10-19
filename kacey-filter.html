@@ -58,7 +58,8 @@
 						  sub-label=" Sub Categories"
 						  depth="1"
 						  notify-url="{{category}}"
-						  value=""
+						  value="{{defaultcategory}}"
+                          hidden-root="true"
                     >
 			</ir-recursive-menu>
 
@@ -95,12 +96,9 @@
 
         <br><input type="submit" value="Search" on-tap="menuTap" class="btn btn-purple"/>
 
-        <app-location route="{{ route }}" use-hash-as-path></app-location>
-        <app-route route="{{ route }}"></app-route>
+		<map-search id="map" item-ids="{{ itemIds }}" ></map-search>
 
-		<map-search id="map" item-ids="{{ itemIds }}"></map-search>
-
-        <shadow-iframe on-action="onAction" id="content" url="{{ route.path }}" hijack-form> </shadow-iframe>
+        <shadow-iframe on-action="onAction" id="content" hijack-form> </shadow-iframe>
 
 		<iron-ajax
 			id="classifieds_loader"
@@ -155,6 +153,7 @@
                     type : String,
                     notify : true,
                 },
+
                 extraFields:{
                     type: Array,
                     value: []
@@ -163,11 +162,6 @@
 				place : {
 					type : Object,
 					observer : '_placeChanged'
-				},
-
-                route : {
-					type : Object,
-					notify: true
 				},
 
 				template : {
@@ -182,12 +176,31 @@
 				
 				basePartialUrl : {
 					type : String
-				}
+				},
+
+                hideRoot:{
+                    type : Boolean
+                }
 
             },
 
 			ready : function () {
 				this.template = 'classifieds';
+
+                this.$.map.addEventListener("click", function(e){
+                   
+                    if(e.type == "click" && e.target.tagName == 'A'){
+                        if(e.target.hasAttribute('open-to-dialog'))
+                        {
+                            var dialogUrl = e.target.getAttribute('href');
+                            this.$.content.navigateToDialog(dialogUrl);
+
+							e.preventDefault();
+							e.stopPropagation();
+                            return;
+                        }
+                    }
+                }.bind(this));
 			},
 
             menuTap : function(ev) {
@@ -280,19 +293,14 @@
 				jsonK = url+'json/'+ category+'/published/?fields='+defaults+extra+q_defaults+q_extra;
 
 				this.basePartialUrl = url + 'partial/' + category + '/published/?fields=id&q_id=';
-                //this.set('route.path', k);
-
 				this.getClassifieds(jsonK);
             },
 
             attached:function(){
-//                this.set('route.path', '/');
-
                 var extra =Polymer.dom(this).querySelectorAll('[filter-field]');
                 this.extraFields = extra;
 
                 this.menuTap();
-
             },
 
 			_placeChanged : function () {
@@ -325,7 +333,8 @@
 
 			allClassifiedsLoaded : function (){
 				var res = loader.lastResponse;
-				this.$.map.loadClassified(res[0]);
+                if(res && res.length)
+				    this.$.map.loadClassified(res[0]);
 			},
 
 			_templateChanged : function () {
@@ -334,7 +343,7 @@
 			
 			_itemIdsChanged : function () {
 				var url = this.basePartialUrl + this.itemIds.join('|');
-				this.set('route.path', url);
+                this.$.content.navigate(url);
 			}
 
         });
